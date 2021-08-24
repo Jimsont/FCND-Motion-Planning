@@ -46,17 +46,17 @@ Here's | A | Snappy | Table
 Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. 
 Here is the code used to read the first line of the csv file, extract lat0 and lon0, and assign this global position as home position.
 
-  # define path of the file and read the first line
+  1. define path of the file and read the first line
   path = './colliders.csv'
   with open(path, 'r') as f:
       reader = csv.reader(f, delimiter=',')
       headers = next(reader)
 
-  # split first line into individual string and convert string to float
+  2. split first line into individual string and convert string to float
   lat0 = float(headers[0].split()[1])
   lon0 = float(headers[1].split()[1])
 
-  # TODO: set home position to (lon0, lat0, 0)
+  3. set home position to (lon0, lat0, 0)
   self.set_home_position(lon0, lat0, 0)
 
 And here is a lovely picture of our downtown San Francisco environment from above!
