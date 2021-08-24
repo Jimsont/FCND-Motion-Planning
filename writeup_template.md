@@ -117,8 +117,8 @@ Minimal requirement here is to modify the code in planning_utils() to update the
 
 #### 6. Cull waypoints 
 For this step you can use a collinearity test or ray tracing method like Bresenham. The idea is simply to prune your path of unnecessary waypoints. Explain the code you used to accomplish this step.
-  1. prune path by function collinearity_prune() 
-  2. prune path by function bresenham_prune()
+  1. First, prune path by function collinearity_prune() 
+  2. Second, prune path by function bresenham_prune()
 
 
 ### Execute the flight
