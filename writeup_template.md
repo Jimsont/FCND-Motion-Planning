@@ -27,7 +27,9 @@ You're reading it! Below I describe how I addressed each rubric point and where 
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
-These scripts contain a basic planning implementation that includes...
+These scripts contain a basic planning implementation. In file `motion_planning.py`, function `plan_path` takes map center as the start and add 10 meters to both
+[N, E] coordinates. Then, apply a-star function defined in file `planning_utils.py` to search the path. After a viable path has been found, the path will be store
+in waypoints list which will be used when function `self.waypoint_transition()` is executed.
 
 And here's a lovely image of my results (ok this image has nothing to do with it, but it's a nice example of how to include images in your writeup!)
 ![Top Down View](./misc/high_up.png)
