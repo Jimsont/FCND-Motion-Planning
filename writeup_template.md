@@ -46,41 +46,79 @@ Here's | A | Snappy | Table
 Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. 
 Here is the code used to read the first line of the csv file, extract lat0 and lon0, and assign this global position as home position.
 
-  1. define path of the file and read the first line
-  path = './colliders.csv'
-  with open(path, 'r') as f:
-      reader = csv.reader(f, delimiter=',')
-      headers = next(reader)
+  1. define path of the file and read the first line\
+  `path = './colliders.csv'`\
+  `with open(path, 'r') as f:`\
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `reader = csv.reader(f, delimiter=',')`\
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `headers = next(reader)`
 
   2. split first line into individual string and convert string to float
-  lat0 = float(headers[0].split()[1])
-  lon0 = float(headers[1].split()[1])
+  `lat0 = float(headers[0].split()[1])`
+  `lon0 = float(headers[1].split()[1])`
 
   3. set home position to (lon0, lat0, 0)
-  self.set_home_position(lon0, lat0, 0)
+  `self.set_home_position(lon0, lat0, 0)`
 
 And here is a lovely picture of our downtown San Francisco environment from above!
 ![Map of SF](./misc/map.png)
 
 #### 2. Set your current local position
-Here as long as you successfully determine your local position relative to global home you'll be all set. Explain briefly how you accomplished this in your code.
-
+  1. extract current global position. Then, transfer current global position into local position. The center of the coordinate system is map center. Here is the code.\
+`local_position = global_to_local(self.global_position, self.global_home)`
 
 Meanwhile, here's a picture of me flying through the trees!
 ![Forest Flying](./misc/in_the_trees.png)
 
 #### 3. Set grid start position from local position
-This is another step in adding flexibility to the start location. As long as it works you're good to go!
+This is another step in adding flexibility to the start location. Because grid center is different from map center, there is an offset between two coordinate systems. Add offset to transfer local_position into grid start position.\
+`grid_start = (int(local_position[0]-north_offset), int(local_position[1]-east_offset))`
 
 #### 4. Set grid goal position from geodetic coords
 This step is to add flexibility to the desired goal location. Should be able to choose any (lat, lon) within the map and have it rendered to a goal location on the grid.
+The following is the code for transfer goal location to grid goal location.
+  1. Transfer global goal location to local goal location. \
+`goal_local_position = global_to_local(self.global_goal_position, self.global_home)`
+
+  2. Calculate grid goal position by adding offset to local goal position\
+`grid_goal = (int(goal_local_position[0]-north_offset), int(goal_local_position[1]-east_offset))`
 
 #### 5. Modify A* to include diagonal motion (or replace A* altogether)
 Minimal requirement here is to modify the code in planning_utils() to update the A* implementation to include diagonal motions on the grid that have a cost of sqrt(2), but more creative solutions are welcome. Explain the code you used to accomplish this step.
 
+  1. Modified code in file `motion_planning2.py`. The following code provides A-start search method capability to search diagnoal motions.\
+  Add following code into class Action(Enum)\
+   `NORTH_WEST = (-1, -1, np.sqrt(2))`\
+   `NORTH_EAST = (-1, 1, np.sqrt(2))`\
+   `SOUTH_WEST = (1, -1, np.sqrt(2))`\
+   `SOUTH_EAST = (1, 1, np.sqrt(2))`
+   
+  Add following code into function `valid_actions()`\
+    `if (x - 1 < 0 or y - 1 < 0) or grid[x - 1, y - 1] == 1:`\
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `valid_actions.remove(Action.NORTH_WEST)`\
+    `if (x - 1 < 0 or y + 1 > m) or grid[x - 1, y + 1] == 1:`\
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `valid_actions.remove(Action.NORTH_EAST)`\
+    `if (x + 1 > n or y - 1 < 0) or grid[x + 1, y - 1] == 1:`\
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `valid_actions.remove(Action.SOUTH_WEST)`\
+    `if (x + 1 > n or y + 1 > m) or grid[x + 1, y + 1] == 1:`\
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `valid_actions.remove(Action.SOUTH_EAST)`
+        
+  2. Add following code to transfer grid to skeleton map\
+`skeleton = medial_axis(invert(grid))`
+
+  3. In skeleton map, search the nearest position of grid start and grid goal\
+`near_start, near_goal = find_start_goal(skeleton, grid_start, grid_goal)`
+
+  4. Use A-star method to find a path. If there is no path, use defaul goal position to generate waypoints
+
+  5. Add two functions collinearity_prune() and bresenham_prune() to take out unnecessary waypoints. 
+
+  6. In main(), add function that will randomly pick a grid goal position in the map. This grid goal position will be feed into drone object.\
+  `drone = MotionPlanning(conn, global_goal)`
+
 #### 6. Cull waypoints 
 For this step you can use a collinearity test or ray tracing method like Bresenham. The idea is simply to prune your path of unnecessary waypoints. Explain the code you used to accomplish this step.
-
+  1. prune path by function collinearity_prune() 
+  2. prune path by function bresenham_prune()
 
 
 ### Execute the flight
