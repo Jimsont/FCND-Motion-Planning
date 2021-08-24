@@ -28,8 +28,7 @@ You're reading it! Below I describe how I addressed each rubric point and where 
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
 These scripts contain a basic planning implementation. In file `motion_planning.py`, function `plan_path` takes map center as the start and add 10 meters to both
-[N, E] coordinates. Then, apply a-star function defined in file `planning_utils.py` to search the path. After a viable path has been found, the path will be store
-in waypoints list which will be used when function `self.waypoint_transition()` is executed.
+[N, E] coordinates to calculate goal. Then, apply a-star function defined in file `planning_utils.py` to search the path. After a viable path has been found, the path will be store in waypoints list which will be used when function `self.waypoint_transition()` is executed.
 
 And here's a lovely image of my results (ok this image has nothing to do with it, but it's a nice example of how to include images in your writeup!)
 ![Top Down View](./misc/high_up.png)
@@ -44,8 +43,21 @@ Here's | A | Snappy | Table
 ### Implementing Your Path Planning Algorithm
 
 #### 1. Set your global home position
-Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. Explain briefly how you accomplished this in your code.
+Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. 
+Here is the code used to read the first line of the csv file, extract lat0 and lon0, and assign this global position as home position.
 
+  # define path of the file and read the first line
+  path = './colliders.csv'
+  with open(path, 'r') as f:
+      reader = csv.reader(f, delimiter=',')
+      headers = next(reader)
+
+  # split first line into individual string and convert string to float
+  lat0 = float(headers[0].split()[1])
+  lon0 = float(headers[1].split()[1])
+
+  # TODO: set home position to (lon0, lat0, 0)
+  self.set_home_position(lon0, lat0, 0)
 
 And here is a lovely picture of our downtown San Francisco environment from above!
 ![Map of SF](./misc/map.png)
